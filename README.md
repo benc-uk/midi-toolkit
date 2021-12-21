@@ -5,14 +5,20 @@ This is a HTML5 & JS based tool kit for working with MIDI, features:
 - Realtime monitor & logging for incoming MIDI messages, with decoding
 - Clock & sync: detect & send MIDI clock
 - Send MIDI CC and NRPN
-- Keyboard for sending note data
+- Two octave keyboard for sending note data
 - Configurable input & output devices, with MIDI channel setting
 
-It's 100% browser based, nothing to install and as a static web app requires no backend
+It's 100% browser based, nothing to install and being a static web app requires no backend. [Alpine.js](https://alpinejs.dev/) was used as a lightweight framework for all DOM interaction and reactivity.
+
+There is no build or webpack bundling required as modern ES6 modules are used. 
+
+## Try it out!
 
 Live version is hosted on GitHub Pages here: https://code.benco.io/midi-toolkit/
 
-Note. You will need a MIDI device attached to your machine. The app is not designed for mobile use
+Note. You will need a MIDI device attached to your machine 😁. The app is not designed for mobile use
+
+## Screenshots
 
 ![image](https://user-images.githubusercontent.com/14982936/146958577-e8490cc0-34d7-4245-ab5b-580d5192a010.png)
 
