@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width">
   <title>MIDI Toolkit</title>
 
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
@@ -19,7 +19,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
@@ -27,7 +26,7 @@
     <!-- side menu -->
     <nav :class="{'modalwrapper': showAbout}">
       <div class="navhead hide-narrow" @click.stop="showAbout = true">
-        <img src="img/icon.svg">
+        <img class="block" src="img/icon.svg">
         MIDI Toolkit
       </div>
       <hr>
@@ -51,6 +50,11 @@
           <i class="fas fa-music fa-fw"></i> <span class="hide-narrow">KEYS</span>
         </a>
       </div>
+      <div>
+        <a class="btn" href="#proxy" :class="{'active': page === '#proxy'}">
+          <i class="fas fa-project-diagram fa-fw"></i> <span class="hide-narrow">PROXY</span>
+        </a>
+      </div>
       <hr>
       <div>
         <a class="btn" href="#config" :class="{'active': page === '#config'}">
@@ -61,343 +65,34 @@
 
     <!-- main content -->
     <main class="flex-fill " :class="{modalwrapper: showAbout}">
-      <!-- config page -->
-      <div x-cloak x-transition x-show="page === '#config'">
-        <header>
-          <i class="fas fa-cogs fa-fw"></i> &nbsp; Configuration
-        </header>
-
-        <section>
-          <header>Devices</header>
-          <div class="row">
-            <div class="label">Input:</div>
-            <select @change="$store.config.save(); $dispatch('input-device-changed')"
-              x-model="$store.config.inputDevice">
-              <option value>None</option>
-              <template x-for="device in inputDevices" :key="device.id">
-                <option :value="device.id"
-                  x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`">
-                </option>
-              </template>
-            </select>
-          </div>
-
-          <div class="row">
-            <div class="label">Output:</div>
-            <select x-model="$store.config.outputDevice" @change="$store.config.save()">
-              <option value">None</option>
-              <template x-for="device in outputDevices">
-                <option :value="device.id"
-                  x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`">
-                </option>
-              </template>
-            </select>
-          </div>
-        </section>
-
-        <section>
-          <header>Channel</header>
-          <div class="row">
-            <div class="label">Number:</div>
-            <select class="w5rem" x-model="$store.config.channel" @change="$store.config.save()">
-              <option value="0">1</option>
-              <option value="1">2</option>
-              <option value="2">3</option>
-              <option value="3">4</option>
-              <option value="4">5</option>
-              <option value="5">6</option>
-              <option value="6">7</option>
-              <option value="7">8</option>
-              <option value="8">9</option>
-              <option value="9">10</option>
-              <option value="10">11</option>
-              <option value="11">12</option>
-              <option value="12">13</option>
-              <option value="13">14</option>
-              <option value="14">15</option>
-              <option value="15">16</option>
-            </select>
-          </div>
-        </section>
-      </div>
-
       <!-- message monitor page -->
-      <div x-cloak x-transition x-data="monitor" x-show="page === '#monitor'" @midi-ready.window="listenForMonitoring"
-        @input-device-changed.window="listenForMonitoring"
-        @page-change.window="if($event.detail == '#monitor') { setTimeout(() => { scrollToBottom() }, 100) }">
-        <header>
-          <i class="fas fa-list-alt fa-fw"></i> &nbsp; MIDI Monitor
-        </header>
-        <section class="flex">
-          <button class="btn outline" @click="paused = !paused">
-            <i class="fas fa-fw" :class="paused == true ? 'fa-play' : 'fa-pause'"></i> <span
-              x-text="paused == true ? 'START' : 'PAUSE'"></span>
-          </button>
-          <button class="btn outline" @click="log=[]"> <i class="fas fa-trash fa-fw"></i> CLEAR</button>
-        </section>
-
-        <section>
-          <div class="monitor-log" x-ref="monitor-log">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Type</th>
-                  <th>Channel</th>
-                  <th>Data</th>
-                  <th>Value</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <template x-for="entry in log">
-                  <tr :class="entry.cssClass">
-                    <td class="font-mono" x-text="formatTimestamp(entry.timestamp)"></td>
-                    <td x-text="entry.type"></td>
-                    <td x-text="entry.channel"></td>
-                    <td x-text="entry.data1"></td>
-                    <td x-text="entry.data2"></td>
-                    <td x-text="entry.details"></td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
-        </section>
+      <div x-cloak x-transition x-data="monitor" x-html="await (await fetch('js/components/monitor.html')).text()"
+        x-show="page === '#monitor'" @midi-ready.window="listenForMonitoring"
+        @input-device-changed.window="listenForMonitoring" x-intersect="scrollToBottom()">
       </div>
 
-      <!-- Message tools page -->
-      <div x-cloak x-transition x-data="tools" x-show="page === '#tools'">
-        <header>
-          <i class="fas fa-tools fa-fw"></i> Message Tools
-        </header>
-
-        <section>
-          <header>Control Messages (CC)</header>
-          <div class="row">
-            <div class="label">Number:</div>
-            <select x-model="ccNumber">
-              <template x-for="cc in ccList">
-                <option :value="cc.number" x-text="cc.name"></option>
-              </template>
-            </select>
-          </div>
-
-          <div class="row">
-            <div class="label">Value:</div>
-            <input type="range" class="w12rem" min="0" max="127" x-model="ccValue"></input>
-            <div class="output gray w4rem" type="text" x-text="ccValue"></div>
-            <button class="btn inline toggle" @click="sendOnChange = !sendOnChange" x-text="sendOnChange ? '✓': '✖'"
-              :class="{ 'disabled': ! sendOnChange }"></button> <span class="hint"
-              @click="sendOnChange = !sendOnChange">Auto send</span>
-          </div>
-
-          <div class="row">
-            <div class="label"></div>
-            <button class="btn inline" @click="sendCC">
-              <i class="fas fa-bolt fa-fw"></i> SEND
-            </button>
-          </div>
-        </section>
-
-        <section>
-          <header>Non-Registered Parameter Numbers (NRPN)</header>
-          <div class="row">
-            <div class="label"></div>
-            <div class="w5rem center"><b>MSB</b></div>
-            <div class="w3rem"><b>LSB</b></div>
-            <div class="w8rem center"><b>Value</b></div>
-          </div>
-          <div class="row">
-            <div class="label">Number:</div>
-            <select x-model="nrpnNumMsb" @change="updateNrpnNum">
-              <template x-for="n in sevenBitNums">
-                <option :value="n" x-text="n"></option>
-              </template>
-            </select>
-
-            <select x-model="nrpnNumLsb" @change="updateNrpnNum">
-              <template x-for="n in sevenBitNums">
-                <option :value="n" x-text="n"></option>
-              </template>
-            </select>
-            &nbsp;
-            <div class="output w5rem" type="text" x-text="nrpnNum"></div>
-          </div>
-
-          <div class="row">
-            <div class="label">Value:</div>
-            <select x-model="nrpnValueMsb" @change="updateNrpnValue">
-              <template x-for="n in sevenBitNums">
-                <option :value="n" x-text="n"></option>
-              </template>
-            </select>
-
-            <select x-model="nrpnValueLsb" @change="updateNrpnValue">
-              <option value="-1">NA</option>
-              <template x-for="n in sevenBitNums">
-                <option :value="n" x-text="n"></option>
-              </template>
-            </select>
-            &nbsp;
-            <div class="output w5rem" type="text" x-text="nrpnValue"></div>
-          </div>
-
-          <div class="label"></div>
-          <button class="btn inline" @click="sendNRPN">
-            <i class="fas fa-bolt fa-fw"></i> SEND
-          </button>
-        </section>
+      <!-- message tools page -->
+      <div x-cloak x-transition x-data="tools" x-html="await (await fetch('js/components/tools.html')).text()"
+        x-show="page === '#tools'">
       </div>
 
-      <!-- Clock page -->
-      <div x-cloak x-transition x-data="clock" @input-device-changed.window="listenForClock"
-        @midi-ready.window="listenForClock" x-show="page === '#clock'">
-        <header>
-          <i class="fas fa-clock fa-fw"></i> &nbsp; Clock &amp; Transport Tools
-        </header>
-        <section>
-          <header>Incoming</header>
-
-          <div class="row">
-            <div class="label">Detected:</div>
-            <div class="output w12rem" x-text="incomingBpm > 0 ? `${incomingBpm} BPM` : 'No clock'"></div>
-          </div>
-
-          <div class="row">
-            <div class="label">Status:</div>
-            <div class="output w12rem" x-text="lastTransport"></div>
-          </div>
-        </section>
-
-        <section>
-          <header>Outgoing</header>
-          <div class="row">
-            <div class="label">Send Clock:</div>
-            <button class="btn toggle" @click="sendClock = !sendClock" x-html="sendClock ? '✓': '✖'"
-              :class="{ 'disabled': ! sendClock }"></button>
-            <div disabled class="output w4rem" type="text" x-text="sendClockBpm" :class="{ 'disabled': ! sendClock }">
-            </div> &nbsp;
-            <input type="range" class="w12rem" min="20" max="400" x-model="sendClockBpm" :disabled="!sendClock"></input>
-          </div>
-
-          <div class="row">
-            <div class="label">Controls:</div>
-            <button class="btn inline" @click="sendStart()"> <i class="fas fa-play fa-fw"></i> Start</button>
-            <button class="btn inline" @click="sendStop()"> <i class="fas fa-stop fa-fw"></i> Stop</button>
-            <button class="btn inline" @click="sendContinue()"> <i class="fas fa-pause fa-fw"></i> Continue</button>
-          </div>
-        </section>
+      <!-- clock page -->
+      <div x-cloak x-transition x-data="clock" x-html="await (await fetch('js/components/clock.html')).text()"
+        @input-device-changed.window="listenForClock" @midi-ready.window="listenForClock" x-show="page === '#clock'">
       </div>
 
-      <!-- Keyboard page -->
-      <div x-cloak x-transition x-data="keys" x-show="page === '#keys'">
-        <header>
-          <i class="fas fa-music fa-fw"></i> &nbsp; Keyboard
-        </header>
+      <!-- keyboard page -->
+      <div x-cloak x-transition x-data="keys" x-html="await (await fetch('js/components/keys.html')).text()"
+        x-show="page === '#keys'">
+      </div>
 
-        <div class="row">
-          Octave: &nbsp;
-          <select x-model="offset">
-            <option value="0">1</option>
-            <option value="12">2</option>
-            <option value="24">3</option>
-            <option value="36">4</option>
-            <option value="48">5</option>
-            <option value="60">6</option>
-            <option value="72">7</option>
-            <option value="84">8</option>
-            <option value="96">9</option>
-            <option value="108">10</option>
-          </select>
+      <!-- proxy page -->
+      <div x-cloak x-transition x-data="proxy" x-html="await (await fetch('js/components/proxy.html')).text()"
+        x-show="page === '#proxy'" @midi-changed.window="updateDevices">
+      </div>
 
-          <div class="w10rem"></div>
-          Velocity: &nbsp;
-          <select x-model="velocity">
-            <option value="20">20</option>
-            <option value="40">40</option>
-            <option value="60">60</option>
-            <option value="80">80</option>
-            <option value="100">100</option>
-            <option value="127">127</option>
-          </select>
-        </div>
-
-        <div class="row key-wrapper">
-          <div class="key" x-data="key" data-key="0">
-            <span>C</span>
-            <div class="key-black" x-data="key" data-key="1">
-              <span>C♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="2">
-            <span>D</span>
-            <div class="key-black" x-data="key" data-key="3">
-              <span>D♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="4">
-            <span>E</span>
-          </div>
-          <div class="key" x-data="key" data-key="5">
-            <span>F</span>
-            <div class="key-black" x-data="key" data-key="6">
-              <span>F♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="7">
-            <span>G</span>
-            <div class="key-black" x-data="key" data-key="8">
-              <span>G♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="9">
-            <span>A</span>
-            <div class="key-black" x-data="key" data-key="10">
-              <span>A♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="11">
-            <span>B</span>
-          </div>
-
-          <div class="key" x-data="key" data-key="12">
-            <span>C</span>
-            <div class="key-black" x-data="key" data-key="13">
-              <span>C♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="14">
-            <span>D</span>
-            <div class="key-black" x-data="key" data-key="15">
-              <span>D♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="16">
-            <span>E</span>
-          </div>
-          <div class="key" x-data="key" data-key="17">
-            <span>F</span>
-            <div class="key-black" x-data="key" data-key="18">
-              <span>F♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="19">
-            <span>G</span>
-            <div class="key-black" x-data="key" data-key="20">
-              <span>G♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="21">
-            <span>A</span>
-            <div class="key-black" x-data="key" data-key="22">
-              <span>A♯</span>
-            </div>
-          </div>
-          <div class="key" x-data="key" data-key="23">
-            <span>B</span>
-          </div>
-        </div>
+      <!-- config page -->
+      <div x-cloak x-transition x-data="config" x-show="page === '#config'" x-html="template">
       </div>
     </main>
 
@@ -405,11 +100,15 @@
     <div x-cloak x-show="showAbout" class="dialog">
       <header>MIDI Toolkit</header>
       <ul>
-        <li>Ben Coleman, 2021</li>
-        <li>Project: <a href="https://github.com/" target="_blank" class="btn btn-sm inline">GitHub</a></li>
+        <li>&copy; Ben Coleman, 2021</li>
         <li>Version: <span x-text="version"></span></li>
       </ul>
-      <button class="btn right w5rem" @click="showAbout = false">OK</button>
+      <div class="row justify-spaced">
+        <a href="https://github.com/benc-uk/midi-toolkit" target="_blank" class="btn btn inline outline">GitHub
+          Project</a>
+        <button class="btn w5rem" @click="showAbout = false">OK</button>
+      </div>
+
     </div>
   </div>
 </body>

@@ -1,0 +1,55 @@
+<header>
+  <i class="fas fa-cogs fa-fw"></i> &nbsp; Configuration
+</header>
+
+<section>
+  <header>Devices</header>
+
+  <div class="row">
+    <div class="label">Input:</div>
+    <select @change="$store.config.save(); $dispatch('input-device-changed')" x-model="$store.config.inputDevice">
+      <option value>None</option>
+      <template x-for="device in inputDevices" :key="device.id">
+        <option :value="device.id" x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`">
+        </option>
+      </template>
+    </select>
+  </div>
+
+  <div class="row">
+    <div class="label">Output:</div>
+    <select x-model="$store.config.outputDevice" @change="$store.config.save(); $dispatch('output-device-changed')">
+      <option value">None</option>
+      <template x-for="device in outputDevices">
+        <option :value="device.id" x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`">
+        </option>
+      </template>
+    </select>
+  </div>
+</section>
+
+<section>
+  <header>Channel</header>
+
+  <div class="row">
+    <div class="label">Number:</div>
+    <select class="w5rem" x-model="$store.config.channel" @change="$store.config.save()">
+      <option value="0">1</option>
+      <option value="1">2</option>
+      <option value="2">3</option>
+      <option value="3">4</option>
+      <option value="4">5</option>
+      <option value="5">6</option>
+      <option value="6">7</option>
+      <option value="7">8</option>
+      <option value="8">9</option>
+      <option value="9">10</option>
+      <option value="10">11</option>
+      <option value="11">12</option>
+      <option value="12">13</option>
+      <option value="13">14</option>
+      <option value="14">15</option>
+      <option value="15">16</option>
+    </select>
+  </div>
+</section>

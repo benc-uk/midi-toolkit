@@ -1,0 +1,46 @@
+<header>
+  <i class="fas fa-project-diagram fa-fw"></i> &nbsp; Router & Message Proxy
+</header>
+
+<section class="flex">
+  <button class="btn" @click="addProxy">ADD PROXY</button>
+</section>
+
+<template x-for="(proxy, index) of proxies">
+  <section>
+    <header x-text="`Message Proxy ${index + 1}`"></header>
+
+    <div class="row">
+      <div class="label">Status:</div>
+      <button class="btn" :class="{ 'disabled': ! proxy.enabled }" :disabled="!proxy.input || !proxy.output"
+        @click="proxy.enabled = !proxy.enabled; updateProxyStatus(proxy)"
+        x-html="proxy.enabled ? '<i class=\'fas fa-play fa-fw\'></i> RUNNING' : '<i class=\'fas fa-stop fa-fw\'></i> STOPPED'"></button>
+    </div>
+
+    <div class="row">
+      <div class="label">Input:</div>
+      <select x-model="proxy.input" @change="proxy.enabled = false" :disabled="proxy.enabled">
+        <option value">None</option>
+        <template x-for="device of inputDevices">
+          <option :value="device.id" x-text="device.name">
+          </option>
+        </template>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="label">Output:</div>
+      <select x-model="proxy.output" @change="proxy.enabled = false" :disabled="proxy.enabled">
+        <option value">None</option>
+        <template x-for="device of outputDevices">
+          <option :value="device.id" x-text="device.name">
+          </option>
+        </template>
+      </select>
+
+      <div class="w10"></div>
+
+      <button class="btn outline" @click="removeProxy(index)"><i class="fas fa-trash fa-fw"></i> DELETE</button>
+    </div>
+  </section>
+</template>

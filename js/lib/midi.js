@@ -310,132 +310,11 @@ export function bytePairtoNumber(msb, lsb) {
 // Convert MIDI CC number to a name
 // =================================================================================
 export function ccNumberToName(number) {
-  switch (number) {
-    case 0:
-      return 'Bank Select MSB'
-    case 1:
-      return 'Modulation'
-    case 2:
-      return 'Breath'
-    case 4:
-      return 'Foot Controller'
-    case 5:
-      return 'Portamento Time'
-    case 6:
-      return 'Data Entry MSB'
-    case 7:
-      return 'Main Volume'
-    case 8:
-      return 'Balance'
-    case 10:
-      return 'Pan'
-    case 11:
-      return 'Expression'
-    case 12:
-      return 'Effect Control 1'
-    case 13:
-      return 'Effect Control 2'
-    case 16:
-      return 'General Purpose 1'
-    case 17:
-      return 'General Purpose 2'
-    case 18:
-      return 'General Purpose 3'
-    case 19:
-      return 'General Purpose 4'
-    case 32:
-      return 'Bank Select LSB'
-    case 33:
-      return 'Modulation Wheel'
-    case 34:
-      return 'Breath Controller'
-    case 36:
-      return 'Foot Pedal'
-    case 38:
-      return 'Data Entry MSB'
-    case 64:
-      return 'Sustain'
-    case 65:
-      return 'Portamento'
-    case 66:
-      return 'Sostenuto'
-    case 67:
-      return 'Soft Pedal'
-    case 68:
-      return 'Legato Footswitch'
-    case 69:
-      return 'Hold 2'
-    case 70:
-      return 'Sound Variation'
-    case 71:
-      return 'Sound Controller 2'
-    case 72:
-      return 'Sound Controller 3'
-    case 73:
-      return 'Sound Controller 4'
-    case 74:
-      return 'Sound Controller 5'
-    case 75:
-      return 'Sound Controller 6'
-    case 76:
-      return 'Sound Controller 7'
-    case 77:
-      return 'Sound Controller 8'
-    case 78:
-      return 'Sound Controller 9'
-    case 79:
-      return 'Sound Controller 10'
-    case 80:
-      return 'General Purpose 5'
-    case 81:
-      return 'General Purpose 6'
-    case 82:
-      return 'General Purpose 7'
-    case 83:
-      return 'General Purpose 8'
-    case 84:
-      return 'Portamento Control'
-    case 91:
-      return 'Effects 1 Depth'
-    case 92:
-      return 'Effects 2 Depth'
-    case 93:
-      return 'Effects 3 Depth'
-    case 94:
-      return 'Effects 4 Depth'
-    case 95:
-      return 'Effects 5 Depth'
-    case 96:
-      return 'Data Increment'
-    case 97:
-      return 'Data Decrement'
-    case 98:
-      return 'Non-Registered Parameter Number LSB'
-    case 99:
-      return 'Non-Registered Parameter Number MSB'
-    case 100:
-      return 'Registered Parameter Number LSB'
-    case 101:
-      return 'Registered Parameter Number MSB'
-    case 120:
-      return 'All Sound Off'
-    case 121:
-      return 'All Controllers Off'
-    case 122:
-      return 'Local Keyboard'
-    case 123:
-      return 'All Notes Off'
-    case 124:
-      return 'Omni Mode Off'
-    case 125:
-      return 'Omni Mode On'
-    case 126:
-      return 'Mono Operation'
-    case 127:
-      return 'Poly Operation'
-    default:
-      return 'Not defined'
+  let name = ccList[number]
+  if (name) {
+    return name
   }
+  return 'Undefined'
 }
 
 // =================================================================================
@@ -716,7 +595,7 @@ export const ccList = {
   6: 'Data Entry',
   7: 'Channel Volume',
   8: 'Balance',
-  10: 'Pan',
+  10: 'Pan Position',
   11: 'Expression Controller',
   12: 'Effect Control 1',
   13: 'Effect Control 2',

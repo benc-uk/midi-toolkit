@@ -1,0 +1,40 @@
+<header>
+  <i class="fas fa-list-alt fa-fw"></i> &nbsp; MIDI Monitor
+</header>
+
+<section class="flex">
+  <button class="btn outline" @click="paused = !paused">
+    <i class="fas fa-fw" :class="paused == true ? 'fa-play' : 'fa-pause'"></i> <span
+      x-text="paused == true ? 'START' : 'PAUSE'"></span>
+  </button>
+  <button class="btn outline" @click="log=[]"> <i class="fas fa-trash fa-fw"></i> CLEAR</button>
+</section>
+
+<section>
+  <div class="monitor-log" x-ref="monitor-log">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Channel</th>
+          <th>Data</th>
+          <th>Value</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="entry in log">
+          <tr :class="entry.cssClass">
+            <td class="font-mono" x-text="formatTimestamp(entry.timestamp)"></td>
+            <td x-text="entry.type"></td>
+            <td x-text="entry.channel"></td>
+            <td x-text="entry.data1"></td>
+            <td x-text="entry.data2"></td>
+            <td x-text="entry.details"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</section>

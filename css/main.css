@@ -65,6 +65,10 @@ section header {
   gap: 0.5rem;
 }
 
+.justify-spaced {
+  justify-content: space-between;
+}
+
 .navhead {
   text-align: center;
   font-weight: 700;
@@ -392,6 +396,7 @@ select:focus {
 }
 .dialog li {
   list-style: square;
+  padding: 0.4rem;
 }
 
 .modalwrapper {

@@ -1,0 +1,80 @@
+<header>
+  <i class="fas fa-tools fa-fw"></i> Message Tools
+</header>
+
+<section>
+  <header>Control Messages (CC)</header>
+  <div class="row">
+    <div class="label">Number:</div>
+    <select x-model="ccNumber">
+      <template x-for="cc in ccList">
+        <option :value="cc.number" x-text="cc.name"></option>
+      </template>
+    </select>
+  </div>
+
+  <div class="row">
+    <div class="label">Value:</div>
+    <input type="range" class="w12rem" min="0" max="127" x-model="ccValue"></input>
+    <div class="output gray w4rem" type="text" x-text="ccValue"></div>
+    <button class="btn inline toggle" @click="sendOnChange = !sendOnChange" x-text="sendOnChange ? '✓': '✖'"
+      :class="{ 'disabled': ! sendOnChange }"></button> <span class="hint" @click="sendOnChange = !sendOnChange">Auto
+      send</span>
+  </div>
+
+  <div class="row">
+    <div class="label"></div>
+    <button class="btn inline" @click="sendCC">
+      <i class="fas fa-bolt fa-fw"></i> SEND
+    </button>
+  </div>
+</section>
+
+<section>
+  <header>Non-Registered Parameter Numbers (NRPN)</header>
+  <div class="row">
+    <div class="label"></div>
+    <div class="w5rem center"><b>MSB</b></div>
+    <div class="w3rem"><b>LSB</b></div>
+    <div class="w8rem center"><b>Value</b></div>
+  </div>
+  <div class="row">
+    <div class="label">Number:</div>
+    <select x-model="nrpnNumMsb" @change="updateNrpnNum">
+      <template x-for="n in sevenBitNums">
+        <option :value="n" x-text="n"></option>
+      </template>
+    </select>
+
+    <select x-model="nrpnNumLsb" @change="updateNrpnNum">
+      <template x-for="n in sevenBitNums">
+        <option :value="n" x-text="n"></option>
+      </template>
+    </select>
+    &nbsp;
+    <div class="output w5rem" type="text" x-text="nrpnNum"></div>
+  </div>
+
+  <div class="row">
+    <div class="label">Value:</div>
+    <select x-model="nrpnValueMsb" @change="updateNrpnValue">
+      <template x-for="n in sevenBitNums">
+        <option :value="n" x-text="n"></option>
+      </template>
+    </select>
+
+    <select x-model="nrpnValueLsb" @change="updateNrpnValue">
+      <option value="-1">NA</option>
+      <template x-for="n in sevenBitNums">
+        <option :value="n" x-text="n"></option>
+      </template>
+    </select>
+    &nbsp;
+    <div class="output w5rem" type="text" x-text="nrpnValue"></div>
+  </div>
+
+  <div class="label"></div>
+  <button class="btn inline" @click="sendNRPN">
+    <i class="fas fa-bolt fa-fw"></i> SEND
+  </button>
+</section>

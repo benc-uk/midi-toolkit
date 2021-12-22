@@ -1,0 +1,37 @@
+<header>
+  <i class="fas fa-clock fa-fw"></i> &nbsp; Clock &amp; Transport Tools
+</header>
+
+<section>
+  <header>Incoming</header>
+
+  <div class="row">
+    <div class="label">Detected:</div>
+    <div class="output w12rem" x-text="incomingBpm > 0 ? `${incomingBpm} BPM` : 'No clock'"></div>
+  </div>
+
+  <div class="row">
+    <div class="label">Status:</div>
+    <div class="output w12rem" x-text="lastTransport"></div>
+  </div>
+</section>
+
+<section>
+  <header>Outgoing</header>
+
+  <div class="row">
+    <div class="label">Send Clock:</div>
+    <button class="btn toggle" @click="sendClock = !sendClock" x-html="sendClock ? '✓': '✖'"
+      :class="{ 'disabled': ! sendClock }"></button>
+    <div disabled class="output w4rem" type="text" x-text="sendClockBpm" :class="{ 'disabled': ! sendClock }">
+    </div> &nbsp;
+    <input type="range" class="w12rem" min="20" max="400" x-model="sendClockBpm" :disabled="!sendClock"></input>
+  </div>
+
+  <div class="row">
+    <div class="label">Controls:</div>
+    <button class="btn inline" @click="sendStart()"> <i class="fas fa-play fa-fw"></i> Start</button>
+    <button class="btn inline" @click="sendStop()"> <i class="fas fa-stop fa-fw"></i> Stop</button>
+    <button class="btn inline" @click="sendContinue()"> <i class="fas fa-pause fa-fw"></i> Continue</button>
+  </div>
+</section>
