@@ -1,4 +1,4 @@
-import Alpine from 'https://unpkg.com/alpinejs@3.7.0/dist/module.esm.js'
+import Alpine from 'https://unpkg.com/alpinejs@3.13.x/dist/module.esm.js'
 import * as midi from '../lib/midi.js'
 
 export const configComponent = () => ({
@@ -82,6 +82,7 @@ export const configComponent = () => ({
     if (localStorage.getItem('config')) {
       Alpine.store('config', JSON.parse(localStorage.getItem('config')))
     }
+
     Alpine.store('config').save = () => {
       localStorage.setItem('config', JSON.stringify(Alpine.store('config')))
     }

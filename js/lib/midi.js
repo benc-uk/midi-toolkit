@@ -20,13 +20,21 @@ export const MSG_ACTIVE_SENSE = 0xe
 export const MSG_RESET = 0xf
 
 // Channel voice messages, with data values
-export const MSG_PITCH_BEND = 14
-export const MSG_CHAN_AFTERTOUCH = 13
-export const MSG_PROG_CHANGE = 12
-export const MSG_CONTROL_CHANGE = 11
-export const MSG_POLY_AFTERTOUCH = 10
-export const MSG_NOTE_ON = 9
-export const MSG_NOTE_OFF = 8
+export const MSG_NOTE_OFF = 0x8
+export const MSG_NOTE_ON = 0x9
+export const MSG_POLY_AFTERTOUCH = 0xa
+export const MSG_CONTROL_CHANGE = 0xb
+export const MSG_PROG_CHANGE = 0xc
+export const MSG_CHAN_AFTERTOUCH = 0xd
+export const MSG_PITCH_BEND = 0xe
+
+// Well known MIDI CC numbers
+const CC_BANK_SELECT_MSB = 0
+const CC_BANK_SELECT_LSB = 32
+const CC_DATA_ENTRY_LSB = 38
+const CC_NRPM_LSB = 98
+const CC_NRPM_MSB = 99
+const CC_DATA_ENTRY_MSB = 6
 
 // ===============================================================================
 // Attempt to get MIDI access and hold it globally
@@ -53,6 +61,7 @@ export function getInputDevices() {
     console.error('MIDI getInputDevices failed: no access')
     return null
   }
+
   return access.inputs
 }
 
@@ -64,6 +73,7 @@ export function getOutputDevices() {
     console.error('MIDI getOutputDevices failed: no access')
     return null
   }
+
   return access.outputs
 }
 
@@ -75,14 +85,17 @@ export function getOutputDevice(deviceId) {
     console.error('MIDI access not available')
     return null
   }
+
   if (!deviceId) {
     //console.warn(`MIDI output device ID empty`)
     return null
   }
+
   if (!access.outputs.get(deviceId)) {
     console.warn(`MIDI output device ${deviceId} not available`)
     return null
   }
+
   return access.outputs.get(deviceId)
 }
 
@@ -94,19 +107,22 @@ export function getInputDevice(deviceId) {
     console.error('MIDI access not available')
     return null
   }
+
   if (!deviceId) {
     //console.error(`MIDI input device ID empty`)
     return null
   }
+
   if (!access.inputs.get(deviceId)) {
     console.warn(`MIDI input device ${deviceId} not available`)
     return null
   }
+
   return access.inputs.get(deviceId)
 }
 
 // ===============================================================================
-//
+// Tries to decode a MIDI message into a standard object
 // ===============================================================================
 export function decodeMessage(msg) {
   let output = {
@@ -170,6 +186,7 @@ export function decodeMessage(msg) {
         output.type = 'Reset'
         break
     }
+
     return output
   }
 
@@ -211,8 +228,9 @@ export function sendNoteOnMessage(deviceId, channel, noteNum, velocity) {
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([0x90 | channel, noteNum, velocity])
+    device.send([MSG_NOTE_ON | channel, noteNum, velocity])
   }
+  console.log(`Sending note on message: ${noteNum} on channel ${channel} with velocity ${velocity}`)
 }
 
 // ===============================================================================
@@ -223,7 +241,7 @@ export function sendNoteOffMessage(deviceId, channel, noteNum) {
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([0x80 | channel, noteNum, 0])
+    device.send([MSG_NOTE_OFF | channel, noteNum, 0])
   }
 }
 
@@ -249,8 +267,9 @@ export function sendCCMessage(deviceId, channel, cc, value) {
   if (!validMessageParameters(channel, cc, value)) return
 
   const device = getOutputDevice(deviceId)
+  console.log(device)
   if (device) {
-    device.send([0xb0 | channel, cc, value])
+    device.send([0xb | channel, cc, value])
   }
 }
 
@@ -258,16 +277,28 @@ export function sendCCMessage(deviceId, channel, cc, value) {
 //
 // ===============================================================================
 export function sendNRPNMessage(deviceId, channel, numMsb, numLsb, valueMsb, valueLsb) {
-  if (!validMessageParameters(channel, cc, numMsb, numLsb, valueMsb, valueLsb)) return
+  if (!validMessageParameters(channel, numMsb, numLsb, valueMsb, valueLsb)) return
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([0xb0 | channel, 99, numMsb])
-    device.send([0xb0 | channel, 98, numLsb])
-    device.send([0xb0 | channel, 6, valueMsb])
+    sendCCMessage(deviceId, channel, CC_NRPM_LSB, numMsb)
+    sendCCMessage(deviceId, channel, CC_NRPM_MSB, numLsb)
+    sendCCMessage(deviceId, channel, CC_DATA_ENTRY_MSB, valueMsb)
     if (valueLsb >= 0) {
-      access.outputs.get(deviceId).send([0xb0 | channel, 38, valueLsb])
+      sendCCMessage(deviceId, channel, CC_DATA_ENTRY_LSB, valueLsb)
     }
+  }
+}
+
+// =================================================================================
+// Send program change
+// =================================================================================
+export function sendPCMessage(deviceId, channel, value) {
+  if (!validMessageParameters(channel, value)) return
+
+  const device = getOutputDevice(deviceId)
+  if (device) {
+    device.send([MSG_PROG_CHANGE | channel, value])
   }
 }
 

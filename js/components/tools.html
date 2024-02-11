@@ -1,9 +1,14 @@
-<header>
-  <i class="fas fa-tools fa-fw"></i> Message Tools
-</header>
+<div class="flex">
+  <header class="flex-fill"><i class="fas fa-tools fa-fw"></i> Message Tools</header>
+
+  <header style="background-color: var(--neutral-500)">
+    <div x-html="`<i class='fas fa-plug fa-fw'></i> Channel: ${parseInt($store.config.channel) + 1}`"></div>
+  </header>
+</div>
 
 <section>
   <header>Control Messages (CC)</header>
+
   <div class="row">
     <div class="label">Number:</div>
     <select x-model="ccNumber">
@@ -15,18 +20,15 @@
 
   <div class="row">
     <div class="label">Value:</div>
-    <input type="range" class="w12rem" min="0" max="127" x-model="ccValue"></input>
+    <input type="range" class="w12rem" min="0" max="127" x-model="ccValue" />
     <div class="output gray w4rem" type="text" x-text="ccValue"></div>
-    <button class="btn inline toggle" @click="sendOnChange = !sendOnChange" x-text="sendOnChange ? '✓': '✖'"
-      :class="{ 'disabled': ! sendOnChange }"></button> <span class="hint" @click="sendOnChange = !sendOnChange">Auto
-      send</span>
+    <button class="btn inline toggle lh-1" @click="sendOnChange = !sendOnChange" x-text="sendOnChange ? '✓': '✖'" :class="{ 'disabled': ! sendOnChange }"></button>
+    <span class="hint" @click="sendOnChange = !sendOnChange">Auto send</span>
   </div>
 
   <div class="row">
     <div class="label"></div>
-    <button class="btn inline" @click="sendCC">
-      <i class="fas fa-bolt fa-fw"></i> SEND
-    </button>
+    <button class="btn inline" @click="sendCC"><i class="fas fa-bolt fa-fw"></i> SEND</button>
   </div>
 </section>
 
@@ -74,7 +76,10 @@
   </div>
 
   <div class="label"></div>
-  <button class="btn inline" @click="sendNRPN">
-    <i class="fas fa-bolt fa-fw"></i> SEND
-  </button>
+  <button class="btn inline" @click="sendNRPN"><i class="fas fa-bolt fa-fw"></i> SEND</button>
+</section>
+
+<section>
+  <header>Program & Bank Change</header>
+  <button class="btn inline" @click="sendPC"><i class="fas fa-bolt fa-fw"></i> SEND</button>
 </section>

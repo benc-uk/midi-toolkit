@@ -1,5 +1,6 @@
-import Alpine from 'https://unpkg.com/alpinejs@3.7.0/dist/module.esm.js'
-import intersect from 'https://unpkg.com/@alpinejs/intersect@3.7.1/dist/module.esm.js'
+import Alpine from 'https://unpkg.com/alpinejs@3.13.x/dist/module.esm.js'
+import intersect from 'https://unpkg.com/@alpinejs/intersect@3.13.x/dist/module.esm.js'
+
 import { configComponent } from './components/config.js'
 import { monitorComponent } from './components/monitor.js'
 import { clockComponent } from './components/clock.js'
@@ -7,7 +8,7 @@ import { toolsComponent } from './components/tools.js'
 import { keysComponent } from './components/keys.js'
 import { proxyComponent } from './components/proxy.js'
 
-const VERSION = '1.1.0'
+const VERSION = '1.2.0'
 
 Alpine.data('app', () => ({
   page: '',
@@ -15,7 +16,9 @@ Alpine.data('app', () => ({
   version: VERSION,
 
   async init() {
-    console.log(`### =====================================\n###  🎹🧰 MIDI Toolkit v${VERSION}\n### =====================================`)
+    console.log(`### =====================================
+###  🎹🔨 MIDI Toolkit v${VERSION}
+### =====================================`)
 
     // All MIDI initialization is done in components/config.js
   }

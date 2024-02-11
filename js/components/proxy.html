@@ -1,6 +1,4 @@
-<header>
-  <i class="fas fa-project-diagram fa-fw"></i> &nbsp; Router & Message Proxy
-</header>
+<header><i class="fas fa-project-diagram fa-fw"></i> &nbsp; Router & Message Proxy</header>
 
 <section class="flex">
   <button class="btn" @click="addProxy">ADD PROXY</button>
@@ -12,9 +10,13 @@
 
     <div class="row">
       <div class="label">Status:</div>
-      <button class="btn" :class="{ 'disabled': ! proxy.enabled }" :disabled="!proxy.input || !proxy.output"
+      <button
+        class="btn"
+        :class="{ 'disabled': ! proxy.enabled }"
+        :disabled="!proxy.input || !proxy.output"
         @click="proxy.enabled = !proxy.enabled; updateProxyStatus(proxy)"
-        x-html="proxy.enabled ? '<i class=\'fas fa-play fa-fw\'></i> RUNNING' : '<i class=\'fas fa-stop fa-fw\'></i> STOPPED'"></button>
+        x-html="proxy.enabled ? '<i class=\'fas fa-play fa-fw\'></i> RUNNING' : '<i class=\'fas fa-stop fa-fw\'></i> STOPPED'"
+      ></button>
       <div class="w5rem"></div>
       <button class="btn outline btn-sm" @click="removeProxy(index)"><i class="fas fa-trash fa-fw"></i></button>
     </div>
@@ -22,20 +24,18 @@
     <div class="row">
       <div class="label">Message Flow:</div>
       <select x-model="proxy.input" @change="proxy.enabled = false" :disabled="proxy.enabled">
-        <option value">None</option>
+        <option>None</option>
         <template x-for="device of inputDevices">
-          <option :value="device.id" x-text="device.name">
-          </option>
+          <option :value="device.id" x-text="device.name"></option>
         </template>
       </select>
 
-      <div style="font-size:2rem">➡️</div>
+      <div style="font-size: 2rem">➡️</div>
 
       <select x-model="proxy.output" @change="proxy.enabled = false" :disabled="proxy.enabled">
-        <option value">None</option>
+        <option>None</option>
         <template x-for="device of outputDevices">
-          <option :value="device.id" x-text="device.name">
-          </option>
+          <option :value="device.id" x-text="device.name"></option>
         </template>
       </select>
     </div>

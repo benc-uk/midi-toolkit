@@ -1,4 +1,4 @@
-import Alpine from 'https://unpkg.com/alpinejs@3.7.0/dist/module.esm.js'
+import Alpine from 'https://unpkg.com/alpinejs@3.13.x/dist/module.esm.js'
 import * as midi from '../lib/midi.js'
 
 export const monitorComponent = () => ({

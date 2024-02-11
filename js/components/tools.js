@@ -1,4 +1,4 @@
-import Alpine from 'https://unpkg.com/alpinejs@3.7.0/dist/module.esm.js'
+import Alpine from 'https://unpkg.com/alpinejs@3.13.x/dist/module.esm.js'
 import * as midi from '../lib/midi.js'
 
 export const toolsComponent = () => ({
@@ -7,6 +7,7 @@ export const toolsComponent = () => ({
   ccNumber: 0,
   ccValue: 0,
   sendOnChange: false,
+  activeChannel: 1,
 
   nrpnNum: 0,
   nrpnValue: 0,
@@ -29,6 +30,8 @@ export const toolsComponent = () => ({
         this.sendCC()
       }
     })
+
+    this.activeChannel = this.$store.config.channel
   },
 
   sendCC() {
@@ -42,7 +45,6 @@ export const toolsComponent = () => ({
   },
 
   sendNRPN() {
-    console.log('sendNRPN', this.nrpnValueLsb)
     // prettier-ignore
     midi.sendNRPNMessage(
       Alpine.store('config').outputDevice, 
@@ -51,6 +53,8 @@ export const toolsComponent = () => ({
       parseInt(this.nrpnValueMsb), parseInt(this.nrpnValueLsb)
     )
   },
+
+  sendPC() {},
 
   updateNrpnNum() {
     this.nrpnNum = midi.bytePairtoNumber(parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb))

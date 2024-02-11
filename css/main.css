@@ -402,6 +402,11 @@ select:focus {
 .modalwrapper {
   filter: brightness(0.7) blur(10px);
 }
+
 .right {
   float: right;
+}
+
+.lh-1 {
+  height: 2.7rem;
 }
