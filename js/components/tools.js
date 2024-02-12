@@ -16,6 +16,11 @@ export const toolsComponent = () => ({
   nrpnValueMsb: 0,
   nrpnValueLsb: -1,
 
+  pcValue: 0,
+  bankMsb: 0,
+  bankLsb: 0,
+  bankNum: 0,
+
   init() {
     for (let n = 0; n < 128; n++) {
       this.sevenBitNums.push(n)
@@ -45,19 +50,23 @@ export const toolsComponent = () => ({
   },
 
   sendNRPN() {
-    // prettier-ignore
-    midi.sendNRPNMessage(
-      Alpine.store('config').outputDevice, 
-      this.$store.config.channel,
-      parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb), 
-      parseInt(this.nrpnValueMsb), parseInt(this.nrpnValueLsb)
-    )
+    midi.sendNRPNMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb), parseInt(this.nrpnValueMsb), parseInt(this.nrpnValueLsb))
   },
 
-  sendPC() {},
+  sendPC() {
+    midi.sendPCMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.pcValue))
+  },
+
+  sendBank() {
+    midi.sendBankMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.bankMsb), parseInt(this.bankLsb))
+  },
 
   updateNrpnNum() {
     this.nrpnNum = midi.bytePairtoNumber(parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb))
+  },
+
+  updateBank() {
+    this.bankNum = midi.bytePairtoNumber(parseInt(this.bankMsb), parseInt(this.bankLsb))
   },
 
   updateNrpnValue() {

@@ -1,3 +1,7 @@
+// ===============================================================================
+// Library for MIDI access and message sending and many other MIDI related things
+// ===============================================================================
+
 // Global MIDI access
 let access
 
@@ -27,8 +31,14 @@ export const MSG_CONTROL_CHANGE = 0xb
 export const MSG_PROG_CHANGE = 0xc
 export const MSG_CHAN_AFTERTOUCH = 0xd
 export const MSG_PITCH_BEND = 0xe
+// Used internally in output messages
+const MSG_OUT_CONTROL_CHANGE = 0xb0
+const MSG_OUT_PROG_CHANGE = 0xc0
+const MSG_OUT_NOTE_ON = 0x90
+const MSG_OUT_NOTE_OFF = 0x80
+const MSG_OUT_SYSTEM = 0xf0
 
-// Well known MIDI CC numbers
+// Well known MIDI CC numbers we'll need for output
 const CC_BANK_SELECT_MSB = 0
 const CC_BANK_SELECT_LSB = 32
 const CC_DATA_ENTRY_LSB = 38
@@ -228,9 +238,8 @@ export function sendNoteOnMessage(deviceId, channel, noteNum, velocity) {
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([MSG_NOTE_ON | channel, noteNum, velocity])
+    device.send([MSG_OUT_NOTE_ON | channel, noteNum, velocity])
   }
-  console.log(`Sending note on message: ${noteNum} on channel ${channel} with velocity ${velocity}`)
 }
 
 // ===============================================================================
@@ -241,12 +250,12 @@ export function sendNoteOffMessage(deviceId, channel, noteNum) {
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([MSG_NOTE_OFF | channel, noteNum, 0])
+    device.send([MSG_OUT_NOTE_OFF | channel, noteNum, 0])
   }
 }
 
 // ===============================================================================
-//
+// Send system message like clock or transport
 // ===============================================================================
 export function sendSystemMessage(deviceId, subType) {
   if (subType < 0 || subType > 15) {
@@ -256,34 +265,34 @@ export function sendSystemMessage(deviceId, subType) {
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([0xf0 | subType])
+    device.send([MSG_OUT_SYSTEM | subType])
   }
 }
 
 // ===============================================================================
-//
+// Send a single controller change message
 // ===============================================================================
 export function sendCCMessage(deviceId, channel, cc, value) {
   if (!validMessageParameters(channel, cc, value)) return
 
   const device = getOutputDevice(deviceId)
-  console.log(device)
   if (device) {
-    device.send([0xb | channel, cc, value])
+    device.send([MSG_OUT_CONTROL_CHANGE | channel, cc, value])
   }
 }
 
 // ===============================================================================
-//
+// Send a NPRM with 3 or 4 MIDI messages
 // ===============================================================================
 export function sendNRPNMessage(deviceId, channel, numMsb, numLsb, valueMsb, valueLsb) {
-  if (!validMessageParameters(channel, numMsb, numLsb, valueMsb, valueLsb)) return
+  if (!validMessageParameters(channel, numMsb, numLsb, valueMsb)) return
 
   const device = getOutputDevice(deviceId)
   if (device) {
     sendCCMessage(deviceId, channel, CC_NRPM_LSB, numMsb)
     sendCCMessage(deviceId, channel, CC_NRPM_MSB, numLsb)
     sendCCMessage(deviceId, channel, CC_DATA_ENTRY_MSB, valueMsb)
+
     if (valueLsb >= 0) {
       sendCCMessage(deviceId, channel, CC_DATA_ENTRY_LSB, valueLsb)
     }
@@ -292,37 +301,32 @@ export function sendNRPNMessage(deviceId, channel, numMsb, numLsb, valueMsb, val
 
 // =================================================================================
 // Send program change
+
 // =================================================================================
 export function sendPCMessage(deviceId, channel, value) {
   if (!validMessageParameters(channel, value)) return
 
   const device = getOutputDevice(deviceId)
   if (device) {
-    device.send([MSG_PROG_CHANGE | channel, value])
+    device.send([MSG_OUT_PROG_CHANGE | channel, value])
   }
-}
-
-// ===============================================================================
-// Helper to validate message parameters
-// ===============================================================================
-function validMessageParameters(channel, ...inputs) {
-  if (channel > 15 || channel < 0) {
-    console.warn('Invalid MIDI channel number', channel)
-    return false
-  }
-
-  for (let input of inputs) {
-    if (input < 0 || input > 127) {
-      console.warn('Number out of range for MIDI message', input)
-      return false
-    }
-  }
-
-  return true
 }
 
 // =================================================================================
-// Split a byte into two nibbles
+// Send bank change
+// =================================================================================
+export function sendBankMessage(deviceId, channel, msb, lsb) {
+  if (!validMessageParameters(channel, msb, lsb)) return
+
+  const device = getOutputDevice(deviceId)
+  if (device) {
+    sendCCMessage(deviceId, channel, CC_BANK_SELECT_MSB, msb)
+    sendCCMessage(deviceId, channel, CC_BANK_SELECT_LSB, lsb)
+  }
+}
+
+// =================================================================================
+// Helper to split a byte into two nibbles
 // =================================================================================
 export function byteToNibbles(byte) {
   const high = byte & 0xf
@@ -349,7 +353,7 @@ export function ccNumberToName(number) {
 }
 
 // =================================================================================
-// MIDI note number to name
+// Helper to map a MIDI note number to a human readable name
 // =================================================================================
 export function noteNumberToName(number) {
   switch (number) {
@@ -615,7 +619,7 @@ export function noteNumberToName(number) {
 }
 
 // =================================================================================
-// Map of MIDI CC names
+// Map of MIDI CC names, this is the most official/complete list I could find
 // =================================================================================
 export const ccList = {
   0: 'Bank Select MSB',
@@ -675,4 +679,25 @@ export const ccList = {
   125: 'Omni Mode On',
   126: 'Mono Operation',
   127: 'Poly Operation'
+}
+
+// ---------------- PRIVATE  ------------------------------------------------------
+
+// ================================================================================
+// Helper to validate parameters
+// ================================================================================
+function validMessageParameters(channel, ...inputs) {
+  if (channel > 15 || channel < 0) {
+    console.warn('Invalid MIDI channel number', channel)
+    return false
+  }
+
+  for (let input of inputs) {
+    if (input < 0 || input > 127) {
+      console.warn('Number out of range for MIDI message', input)
+      return false
+    }
+  }
+
+  return true
 }

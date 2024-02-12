@@ -21,14 +21,14 @@
   <div class="row">
     <div class="label">Value:</div>
     <input type="range" class="w12rem" min="0" max="127" x-model="ccValue" />
-    <div class="output gray w4rem" type="text" x-text="ccValue"></div>
+    <div class="output w5rem" type="text" x-text="ccValue"></div>
     <button class="btn inline toggle lh-1" @click="sendOnChange = !sendOnChange" x-text="sendOnChange ? '✓': '✖'" :class="{ 'disabled': ! sendOnChange }"></button>
     <span class="hint" @click="sendOnChange = !sendOnChange">Auto send</span>
   </div>
 
   <div class="row">
     <div class="label"></div>
-    <button class="btn inline" @click="sendCC"><i class="fas fa-bolt fa-fw"></i> SEND</button>
+    <button class="btn inline" @click="sendCC"><i class="fas fa-bolt fa-fw"></i> SEND CC</button>
   </div>
 </section>
 
@@ -76,10 +76,46 @@
   </div>
 
   <div class="label"></div>
-  <button class="btn inline" @click="sendNRPN"><i class="fas fa-bolt fa-fw"></i> SEND</button>
+  <button class="btn inline" @click="sendNRPN"><i class="fas fa-bolt fa-fw"></i> SEND NRPM</button>
 </section>
 
 <section>
   <header>Program & Bank Change</header>
-  <button class="btn inline" @click="sendPC"><i class="fas fa-bolt fa-fw"></i> SEND</button>
+  <div class="row">
+    <div class="label">Patch:</div>
+    <input type="range" class="w12rem" min="0" max="127" x-model="pcValue" />
+    <div class="output w5rem" type="text" x-text="pcValue"></div>
+  </div>
+
+  <div class="label"></div>
+  <button class="btn inline" @click="sendPC"><i class="fas fa-bolt fa-fw"></i> SELECT PATCH</button>
+
+  <hr />
+
+  <div class="row">
+    <div class="label"></div>
+    <div class="w5rem center"><b>MSB</b></div>
+    <div class="w3rem"><b>LSB</b></div>
+    <div class="w8rem center"><b>Value</b></div>
+  </div>
+
+  <div class="row">
+    <div class="label">Bank:</div>
+    <select x-model="bankMsb" @change="updateBank">
+      <template x-for="n in sevenBitNums">
+        <option :value="n" x-text="n"></option>
+      </template>
+    </select>
+
+    <select x-model="bankLsb" @change="updateBank">
+      <template x-for="n in sevenBitNums">
+        <option :value="n" x-text="n"></option>
+      </template>
+    </select>
+    &nbsp;
+    <div class="output w5rem" type="text" x-text="bankNum"></div>
+  </div>
+
+  <div class="label"></div>
+  <button class="btn inline" @click="sendBank"><i class="fas fa-bolt fa-fw"></i> SELECT BANK</button>
 </section>
