@@ -49,6 +49,7 @@ export const configComponent = () => ({
     }
   },
 
+  // Callback for when MIDI devices are connected or disconnected
   setupDevices() {
     // Skip when the number of devices has not changed
     if (this.inputDevices.length == midi.getInputDevices().size && this.outputDevices.length == midi.getOutputDevices().size) {

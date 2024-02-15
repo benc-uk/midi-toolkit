@@ -2,7 +2,7 @@
   <header class="flex-fill"><i class="fas fa-tools fa-fw"></i> Message Tools</header>
 
   <header style="background-color: var(--neutral-500)">
-    <div x-html="`<i class='fas fa-plug fa-fw'></i> Channel: ${parseInt($store.config.channel) + 1}`"></div>
+    <a style="text-decoration: none; color: #eee" href="#config" :class="{'active': page === '#config'}"> <div x-html="`<i class='fas fa-plug fa-fw'></i> Channel: ${parseInt($store.config.channel) + 1}`"></div></a>
   </header>
 </div>
 

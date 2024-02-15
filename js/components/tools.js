@@ -59,6 +59,8 @@ export const toolsComponent = () => ({
 
   sendBank() {
     midi.sendBankMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.bankMsb), parseInt(this.bankLsb))
+    // Also send the PC message, otherwise the bank change won't be reflected (at least on my ASM Hydrasynth!)
+    this.sendPC()
   },
 
   updateNrpnNum() {

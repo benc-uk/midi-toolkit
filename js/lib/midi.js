@@ -4,6 +4,7 @@
 
 // Global MIDI access
 let access
+let logLevel = 3
 
 export const MSG_STATUS_SYSTEM = 15
 
@@ -49,17 +50,19 @@ const CC_DATA_ENTRY_MSB = 6
 // ===============================================================================
 // Attempt to get MIDI access and hold it globally
 // ===============================================================================
-export async function getAccess(stateChangeCallback) {
+export async function getAccess(stateChangeCallback, midiOptions) {
   try {
     if (!access) {
-      access = await navigator.requestMIDIAccess()
+      access = await navigator.requestMIDIAccess(midiOptions)
     }
 
     if (stateChangeCallback) access.onstatechange = () => stateChangeCallback()
 
+    log(LOG_LEVEL.INFO, 'MIDI getAccess succeeded,', access.outputs.size, 'outputs and', access.inputs.size, 'inputs')
+
     return access
   } catch (err) {
-    console.error('MIDI getAccess failed', err)
+    log(LOG_LEVEL.ERROR, 'MIDI getAccess failed', err)
   }
 }
 
@@ -68,7 +71,7 @@ export async function getAccess(stateChangeCallback) {
 // ===============================================================================
 export function getInputDevices() {
   if (!access) {
-    console.error('MIDI getInputDevices failed: no access')
+    log(LOG_LEVEL.ERROR, 'MIDI getInputDevices failed: no access')
     return null
   }
 
@@ -80,7 +83,7 @@ export function getInputDevices() {
 // ===============================================================================
 export function getOutputDevices() {
   if (!access) {
-    console.error('MIDI getOutputDevices failed: no access')
+    log(LOG_LEVEL.ERROR, 'MIDI getOutputDevices failed: no access')
     return null
   }
 
@@ -92,17 +95,16 @@ export function getOutputDevices() {
 // ===============================================================================
 export function getOutputDevice(deviceId) {
   if (!access) {
-    console.error('MIDI access not available')
+    log(LOG_LEVEL.ERROR, 'MIDI access not available')
     return null
   }
 
   if (!deviceId) {
-    //console.warn(`MIDI output device ID empty`)
     return null
   }
 
   if (!access.outputs.get(deviceId)) {
-    console.warn(`MIDI output device ${deviceId} not available`)
+    log(LOG_LEVEL.WARN, `MIDI output device ${deviceId} not available`)
     return null
   }
 
@@ -114,17 +116,16 @@ export function getOutputDevice(deviceId) {
 // ===============================================================================
 export function getInputDevice(deviceId) {
   if (!access) {
-    console.error('MIDI access not available')
+    log(LOG_LEVEL.ERROR, 'MIDI access not available')
     return null
   }
 
   if (!deviceId) {
-    //console.error(`MIDI input device ID empty`)
     return null
   }
 
   if (!access.inputs.get(deviceId)) {
-    console.warn(`MIDI input device ${deviceId} not available`)
+    log(LOG_LEVEL.WARN, `MIDI input device ${deviceId} not available`)
     return null
   }
 
@@ -239,6 +240,7 @@ export function sendNoteOnMessage(deviceId, channel, noteNum, velocity) {
   const device = getOutputDevice(deviceId)
   if (device) {
     device.send([MSG_OUT_NOTE_ON | channel, noteNum, velocity])
+    log(LOG_LEVEL.DEBUG, `Sent note on message: ${noteNumberToName(noteNum)} (${noteNum}) on channel: ${channel}`)
   }
 }
 
@@ -251,6 +253,7 @@ export function sendNoteOffMessage(deviceId, channel, noteNum) {
   const device = getOutputDevice(deviceId)
   if (device) {
     device.send([MSG_OUT_NOTE_OFF | channel, noteNum, 0])
+    log(LOG_LEVEL.DEBUG, `Sent note off message: ${noteNumberToName(noteNum)} (${noteNum}) on channel: ${channel}`)
   }
 }
 
@@ -259,7 +262,7 @@ export function sendNoteOffMessage(deviceId, channel, noteNum) {
 // ===============================================================================
 export function sendSystemMessage(deviceId, subType) {
   if (subType < 0 || subType > 15) {
-    console.warn(`Invalid MIDI system message subtype: ${subType} (should be 0 - 15)`)
+    log(LOG_LEVEL.WARN, `Invalid MIDI system message subtype: ${subType} (should be 0 - 15)`)
     return
   }
 
@@ -278,6 +281,7 @@ export function sendCCMessage(deviceId, channel, cc, value) {
   const device = getOutputDevice(deviceId)
   if (device) {
     device.send([MSG_OUT_CONTROL_CHANGE | channel, cc, value])
+    log(LOG_LEVEL.DEBUG, `Sent CC message: ${ccNumberToName(cc)} (${cc}) value: ${value} on channel: ${channel}`)
   }
 }
 
@@ -301,7 +305,6 @@ export function sendNRPNMessage(deviceId, channel, numMsb, numLsb, valueMsb, val
 
 // =================================================================================
 // Send program change
-
 // =================================================================================
 export function sendPCMessage(deviceId, channel, value) {
   if (!validMessageParameters(channel, value)) return
@@ -326,15 +329,6 @@ export function sendBankMessage(deviceId, channel, msb, lsb) {
 }
 
 // =================================================================================
-// Helper to split a byte into two nibbles
-// =================================================================================
-export function byteToNibbles(byte) {
-  const high = byte & 0xf
-  const low = byte >> 4
-  return [low, high]
-}
-
-// =================================================================================
 // Convert a two part (MSB, LSB) num to a 14 bit value
 // =================================================================================
 export function bytePairtoNumber(msb, lsb) {
@@ -349,6 +343,7 @@ export function ccNumberToName(number) {
   if (name) {
     return name
   }
+
   return 'Undefined'
 }
 
@@ -681,23 +676,69 @@ export const ccList = {
   127: 'Poly Operation'
 }
 
-// ---------------- PRIVATE  ------------------------------------------------------
+// ---------------- LOGGING --------------------------------------------------------
+
+export const LOG_LEVEL = {
+  NONE: 0,
+  ERROR: 1,
+  WARN: 2,
+  INFO: 3,
+  DEBUG: 4
+}
+
+export function setLogLevel(level) {
+  if (level < 0 || level > 4) {
+    console.warn(`Invalid log level: ${level} (should be 0 - 4)`)
+    return
+  }
+
+  logLevel = level
+}
+
+function log(level, ...args) {
+  if (level <= logLevel) {
+    if (level === LOG_LEVEL.ERROR) {
+      console.error(...args)
+    } else if (level === LOG_LEVEL.WARN) {
+      console.warn(...args)
+    } else {
+      console.log(...args)
+    }
+  }
+}
+
+// ---------------- PRIVATE -------------------------------------------------------
 
 // ================================================================================
-// Helper to validate parameters
+// Internal helper to try to validate parameters
 // ================================================================================
 function validMessageParameters(channel, ...inputs) {
+  let chanNum = parseInt(channel)
+  if (isNaN(chanNum)) {
+    log(LOG_LEVEL.WARN, 'MIDI channel must be a number:', channel)
+    return false
+  }
+
   if (channel > 15 || channel < 0) {
-    console.warn('Invalid MIDI channel number', channel)
+    log(LOG_LEVEL.WARN, 'Invalid MIDI channel number:', channel)
     return false
   }
 
   for (let input of inputs) {
     if (input < 0 || input > 127) {
-      console.warn('Number out of range for MIDI message', input)
+      log(LOG_LEVEL.WARN, 'Number out of range for MIDI message:', input)
       return false
     }
   }
 
   return true
+}
+
+// =================================================================================
+// Helper to split a byte into two nibbles
+// =================================================================================
+function byteToNibbles(byte) {
+  const high = byte & 0xf
+  const low = byte >> 4
+  return [low, high]
 }
