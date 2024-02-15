@@ -1,6 +1,10 @@
-<header>
-  <i class="fas fa-music fa-fw"></i> &nbsp; Keyboard
-</header>
+<div class="flex">
+  <header class="flex-fill"><i class="fas fa-music fa-fw"></i> &nbsp; Keyboard</header>
+
+  <header style="background-color: var(--neutral-500)">
+    <a style="text-decoration: none; color: #eee" href="#config" :class="{'active': page === '#config'}"> <div x-html="`<i class='fas fa-plug fa-fw'></i> Channel: ${parseInt($store.config.channel) + 1}`"></div></a>
+  </header>
+</div>
 
 <div class="row">
   Octave: &nbsp;
@@ -29,7 +33,7 @@
   </select>
 </div>
 
-<hr>
+<hr />
 
 <div class="row key-wrapper">
   <div class="key" x-data="key" data-key="0">

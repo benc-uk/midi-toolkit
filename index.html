@@ -1,116 +1,97 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width" />
+    <title>MIDI Toolkit</title>
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width">
-  <title>MIDI Toolkit</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
 
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <script src="js/app.js" type="module"></script>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/colors.css" />
+    <link rel="stylesheet" href="css/main.css" />
 
-  <script src="js/app.js" type="module"></script>
-  <link rel="stylesheet" href="css/reset.css">
-  <link rel="stylesheet" href="css/colors.css">
-  <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" href="img/icon.svg" />
 
-  <link rel="icon" href="img/icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
+  </head>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
-</head>
+  <body>
+    <div id="app" x-data="app" @hashchange.window="page = location.hash">
+      <!-- side menu -->
+      <nav :class="{'modalwrapper': showAbout}">
+        <div class="navhead hide-narrow" @click.stop="showAbout = true">
+          <img class="block" src="img/icon.svg" />
+          MIDI Toolkit
+        </div>
+        <hr />
+        <div>
+          <a class="btn" href="#monitor" :class="{'active': page === '#monitor'}"> <i class="fas fa-list-alt fa-fw"></i> <span class="hide-narrow">MONITOR</span> </a>
+        </div>
+        <div>
+          <a class="btn" href="#tools" :class="{'active': page === '#tools'}"> <i class="fas fa-tools fa-fw"></i> <span class="hide-narrow">TOOLS</span> </a>
+        </div>
+        <div>
+          <a class="btn" href="#clock" :class="{'active': page === '#clock'}"> <i class="fas fa-clock fa-fw"></i> <span class="hide-narrow">CLOCK</span> </a>
+        </div>
+        <div>
+          <a class="btn" href="#keys" :class="{'active': page === '#keys'}"> <i class="fas fa-music fa-fw"></i> <span class="hide-narrow">KEYS</span> </a>
+        </div>
+        <div>
+          <a class="btn" href="#proxy" :class="{'active': page === '#proxy'}"> <i class="fas fa-project-diagram fa-fw"></i> <span class="hide-narrow">PROXY</span> </a>
+        </div>
+        <hr />
+        <div>
+          <a class="btn" href="#config" :class="{'active': page === '#config'}"> <i class="fas fa-cogs fa-fw"></i> <span class="hide-narrow">CONFIG</span> </a>
+        </div>
+      </nav>
 
-<body>
-  <div id="app" x-data="app" @hashchange.window="page = location.hash">
-    <!-- side menu -->
-    <nav :class="{'modalwrapper': showAbout}">
-      <div class="navhead hide-narrow" @click.stop="showAbout = true">
-        <img class="block" src="img/icon.svg">
-        MIDI Toolkit
-      </div>
-      <hr>
-      <div>
-        <a class="btn" href="#monitor" :class="{'active': page === '#monitor'}">
-          <i class="fas fa-list-alt fa-fw"></i> <span class="hide-narrow">MONITOR</span>
-        </a>
-      </div>
-      <div>
-        <a class="btn" href="#tools" :class="{'active': page === '#tools'}">
-          <i class="fas fa-tools fa-fw"></i> <span class="hide-narrow">TOOLS</span>
-        </a>
-      </div>
-      <div>
-        <a class="btn" href="#clock" :class="{'active': page === '#clock'}">
-          <i class="fas fa-clock fa-fw"></i> <span class="hide-narrow">CLOCK</span>
-        </a>
-      </div>
-      <div>
-        <a class="btn" href="#keys" :class="{'active': page === '#keys'}">
-          <i class="fas fa-music fa-fw"></i> <span class="hide-narrow">KEYS</span>
-        </a>
-      </div>
-      <div>
-        <a class="btn" href="#proxy" :class="{'active': page === '#proxy'}">
-          <i class="fas fa-project-diagram fa-fw"></i> <span class="hide-narrow">PROXY</span>
-        </a>
-      </div>
-      <hr>
-      <div>
-        <a class="btn" href="#config" :class="{'active': page === '#config'}">
-          <i class="fas fa-cogs fa-fw"></i> <span class="hide-narrow">CONFIG</span>
-        </a>
-      </div>
-    </nav>
+      <!-- main content -->
+      <main class="flex-fill" :class="{modalwrapper: showAbout}">
+        <!-- message monitor page -->
+        <div
+          x-cloak
+          x-transition
+          x-data="monitor"
+          x-html="await (await fetch('js/components/monitor.html')).text()"
+          x-show="page === '#monitor'"
+          @midi-ready.window="listenForMonitoring"
+          @input-device-changed.window="listenForMonitoring"
+          x-intersect="scrollToBottom()"
+        ></div>
 
-    <!-- main content -->
-    <main class="flex-fill " :class="{modalwrapper: showAbout}">
-      <!-- message monitor page -->
-      <div x-cloak x-transition x-data="monitor" x-html="await (await fetch('js/components/monitor.html')).text()"
-        x-show="page === '#monitor'" @midi-ready.window="listenForMonitoring"
-        @input-device-changed.window="listenForMonitoring" x-intersect="scrollToBottom()">
-      </div>
+        <!-- message tools page -->
+        <div x-cloak x-transition x-data="tools" x-html="await (await fetch('js/components/tools.html')).text()" x-show="page === '#tools'"></div>
 
-      <!-- message tools page -->
-      <div x-cloak x-transition x-data="tools" x-html="await (await fetch('js/components/tools.html')).text()"
-        x-show="page === '#tools'">
-      </div>
+        <!-- clock page -->
+        <div x-cloak x-transition x-data="clock" x-html="await (await fetch('js/components/clock.html')).text()" @input-device-changed.window="listenForClock" @midi-ready.window="listenForClock" x-show="page === '#clock'"></div>
 
-      <!-- clock page -->
-      <div x-cloak x-transition x-data="clock" x-html="await (await fetch('js/components/clock.html')).text()"
-        @input-device-changed.window="listenForClock" @midi-ready.window="listenForClock" x-show="page === '#clock'">
-      </div>
+        <!-- keyboard page -->
+        <div x-cloak x-transition x-data="keys" x-html="await (await fetch('js/components/keys.html')).text()" x-show="page === '#keys'"></div>
 
-      <!-- keyboard page -->
-      <div x-cloak x-transition x-data="keys" x-html="await (await fetch('js/components/keys.html')).text()"
-        x-show="page === '#keys'">
-      </div>
+        <!-- proxy page -->
+        <div x-cloak x-transition x-data="proxy" x-html="await (await fetch('js/components/proxy.html')).text()" x-show="page === '#proxy'" @midi-changed.window="updateDevices"></div>
 
-      <!-- proxy page -->
-      <div x-cloak x-transition x-data="proxy" x-html="await (await fetch('js/components/proxy.html')).text()"
-        x-show="page === '#proxy'" @midi-changed.window="updateDevices">
-      </div>
+        <!-- config page -->
+        <div x-cloak x-transition x-data="config" x-show="page === '#config'" x-html="template"></div>
+      </main>
 
-      <!-- config page -->
-      <div x-cloak x-transition x-data="config" x-show="page === '#config'" x-html="template">
+      <!-- about dialog -->
+      <div x-cloak x-show="showAbout" class="dialog">
+        <header>MIDI Toolkit</header>
+        <ul>
+          <li>&copy; Ben Coleman, 2024</li>
+          <li>Version: <span x-text="version"></span></li>
+        </ul>
+        <div class="row justify-spaced">
+          <a href="https://github.com/benc-uk/midi-toolkit" target="_blank" class="btn btn inline outline">GitHub Project</a>
+          <button class="btn w5rem" @click="showAbout = false">OK</button>
+        </div>
       </div>
-    </main>
-
-    <!-- about dialog -->
-    <div x-cloak x-show="showAbout" class="dialog">
-      <header>MIDI Toolkit</header>
-      <ul>
-        <li>&copy; Ben Coleman, 2021</li>
-        <li>Version: <span x-text="version"></span></li>
-      </ul>
-      <div class="row justify-spaced">
-        <a href="https://github.com/benc-uk/midi-toolkit" target="_blank" class="btn btn inline outline">GitHub
-          Project</a>
-        <button class="btn w5rem" @click="showAbout = false">OK</button>
-      </div>
-
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

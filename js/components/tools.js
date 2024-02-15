@@ -1,4 +1,4 @@
-import Alpine from 'https://unpkg.com/alpinejs@3.7.0/dist/module.esm.js'
+import Alpine from 'https://unpkg.com/alpinejs@3.13.x/dist/module.esm.js'
 import * as midi from '../lib/midi.js'
 
 export const toolsComponent = () => ({
@@ -7,6 +7,7 @@ export const toolsComponent = () => ({
   ccNumber: 0,
   ccValue: 0,
   sendOnChange: false,
+  activeChannel: 1,
 
   nrpnNum: 0,
   nrpnValue: 0,
@@ -14,6 +15,11 @@ export const toolsComponent = () => ({
   nrpnNumLsb: 0,
   nrpnValueMsb: 0,
   nrpnValueLsb: -1,
+
+  pcValue: 0,
+  bankMsb: 0,
+  bankLsb: 0,
+  bankNum: 0,
 
   init() {
     for (let n = 0; n < 128; n++) {
@@ -29,6 +35,8 @@ export const toolsComponent = () => ({
         this.sendCC()
       }
     })
+
+    this.activeChannel = this.$store.config.channel
   },
 
   sendCC() {
@@ -42,18 +50,25 @@ export const toolsComponent = () => ({
   },
 
   sendNRPN() {
-    console.log('sendNRPN', this.nrpnValueLsb)
-    // prettier-ignore
-    midi.sendNRPNMessage(
-      Alpine.store('config').outputDevice, 
-      this.$store.config.channel,
-      parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb), 
-      parseInt(this.nrpnValueMsb), parseInt(this.nrpnValueLsb)
-    )
+    midi.sendNRPNMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb), parseInt(this.nrpnValueMsb), parseInt(this.nrpnValueLsb))
+  },
+
+  sendPC() {
+    midi.sendPCMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.pcValue))
+  },
+
+  sendBank() {
+    midi.sendBankMessage(Alpine.store('config').outputDevice, this.$store.config.channel, parseInt(this.bankMsb), parseInt(this.bankLsb))
+    // Also send the PC message, otherwise the bank change won't be reflected (at least on my ASM Hydrasynth!)
+    this.sendPC()
   },
 
   updateNrpnNum() {
     this.nrpnNum = midi.bytePairtoNumber(parseInt(this.nrpnNumMsb), parseInt(this.nrpnNumLsb))
+  },
+
+  updateBank() {
+    this.bankNum = midi.bytePairtoNumber(parseInt(this.bankMsb), parseInt(this.bankLsb))
   },
 
   updateNrpnValue() {

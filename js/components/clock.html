@@ -21,7 +21,7 @@
 
   <div class="row">
     <div class="label">Send Clock:</div>
-    <button class="btn toggle" @click="sendClock = !sendClock" x-html="sendClock ? '✓': '✖'"
+    <button class="btn toggle lh-1" @click="sendClock = !sendClock" x-html="sendClock ? '✓': '✖'"
       :class="{ 'disabled': ! sendClock }"></button>
     <div disabled class="output w4rem" type="text" x-text="sendClockBpm" :class="{ 'disabled': ! sendClock }">
     </div> &nbsp;

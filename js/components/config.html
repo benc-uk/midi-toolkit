@@ -1,17 +1,14 @@
-<header>
-  <i class="fas fa-cogs fa-fw"></i> &nbsp; Configuration
-</header>
+<header><i class="fas fa-cogs fa-fw"></i> &nbsp; Configuration</header>
 
 <section>
-  <header>Devices</header>
+  <header>Devices / MIDI Ports</header>
 
   <div class="row">
     <div class="label">Input:</div>
     <select @change="$store.config.save(); $dispatch('input-device-changed')" x-model="$store.config.inputDevice">
-      <option value>None</option>
+      <option>None</option>
       <template x-for="device in inputDevices" :key="device.id">
-        <option :value="device.id" x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`">
-        </option>
+        <option :value="device.id" x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`"></option>
       </template>
     </select>
   </div>
@@ -19,10 +16,9 @@
   <div class="row">
     <div class="label">Output:</div>
     <select x-model="$store.config.outputDevice" @change="$store.config.save(); $dispatch('output-device-changed')">
-      <option value">None</option>
+      <option>None</option>
       <template x-for="device in outputDevices">
-        <option :value="device.id" x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`">
-        </option>
+        <option :value="device.id" x-text="`${device.name} ${device.manufacturer ? '('+device.manufacturer+')' : ''}`"></option>
       </template>
     </select>
   </div>
